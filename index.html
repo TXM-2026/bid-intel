@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>投标情报台 · 消毒与医疗器械</title>
+<style>
+:root{
+  --bg:#f4f6fa; --card:#ffffff; --ink:#1a2233; --sub:#5b6472; --line:#e5e9f0;
+  --navy:#1e3a8a; --navy2:#2748b0; --red:#c0392b; --red-bg:#fdecec;
+  --amber:#b45309; --amber-bg:#fef3e2; --green:#15803d; --green-bg:#e8f6ee;
+  --blue-bg:#eaf0fb; --grey:#8892a0; --grey-bg:#eef1f5;
+  --shadow:0 1px 3px rgba(20,30,60,.08),0 4px 14px rgba(20,30,60,.06);
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6}
+header{background:linear-gradient(120deg,#152a63,#1e3a8a 55%,#2748b0);color:#fff;padding:20px 0 0;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(15,30,80,.25)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 18px}
+.brand{display:flex;align-items:center;gap:12px;padding-bottom:14px}
+.logo{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:20px}
+.brand h1{font-size:19px;font-weight:700;letter-spacing:.5px}
+.brand span{font-size:12px;opacity:.75;display:block;font-weight:400}
+nav{display:flex;gap:4px}
+nav button{flex:1;border:none;background:transparent;color:rgba(255,255,255,.72);font-size:14px;padding:11px 8px;cursor:pointer;font-family:inherit;border-bottom:3px solid transparent;transition:.15s}
+nav button.on{color:#fff;font-weight:600;border-bottom-color:#fbbf24;background:rgba(255,255,255,.06)}
+main{padding:20px 0 60px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--card);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.stat b{font-size:24px;display:block;line-height:1.2}
+.stat i{font-style:normal;font-size:12px;color:var(--sub)}
+.stat.hot b{color:var(--red)} .stat.money b{color:var(--navy)} .stat.warn b{color:var(--amber)} .stat.ok b{color:var(--green)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
+.toolbar input[type=text]{flex:1;min-width:200px;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;background:var(--card)}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:6px 13px;font-size:12.5px;cursor:pointer;color:var(--sub);transition:.15s;font-family:inherit}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:500}
+.btn{border:none;border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:inherit;transition:.15s;font-weight:500}
+.btn-primary{background:var(--navy);color:#fff} .btn-primary:hover{background:var(--navy2)}
+.btn-ghost{background:var(--card);border:1px solid var(--line);color:var(--sub)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid #f3c4bd}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;padding:16px 18px;position:relative}
+.card .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.card h3{font-size:15px;font-weight:600}
+.tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:10px;font-weight:500;margin-right:5px;vertical-align:1px}
+.t-dis{background:#fde8e8;color:var(--red)} .t-dev{background:var(--blue-bg);color:var(--navy)} .t-res{background:var(--amber-bg);color:var(--amber)}
+.p-A{background:var(--red);color:#fff} .p-B{background:#d97706;color:#fff} .p-C{background:var(--grey);color:#fff}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:var(--sub);margin:8px 0 6px}
+.meta b{color:var(--ink);font-weight:600}
+.note{font-size:12.5px;color:var(--sub);background:var(--grey-bg);border-radius:8px;padding:8px 11px;margin-top:8px}
+.dd{font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px;white-space:nowrap}
+.dd-0{background:var(--red);color:#fff} .dd-3{background:var(--red-bg);color:var(--red)}
+.dd-7{background:var(--amber-bg);color:var(--amber)} .dd-ok{background:var(--green-bg);color:var(--green)}
+.dd-exp{background:var(--grey-bg);color:var(--grey)}
+.extlinks{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);display:flex;flex-wrap:wrap;gap:8px}
+.extlinks a{font-size:12px;color:var(--navy);text-decoration:none;background:var(--blue-bg);padding:4px 11px;border-radius:6px}
+.extlinks a:hover{text-decoration:underline}
+.remotebar{background:linear-gradient(90deg,#0b3d2e,#14532d);color:#d1fae5;border-radius:10px;padding:8px 14px;font-size:12.5px;margin-bottom:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.empty{text-align:center;color:var(--grey);padding:60px 0}
+.sel{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;background:var(--card);color:var(--ink)}
+mark{background:#fde68a;padding:0 2px;border-radius:3px}
+.card.hot3{border-left:4px solid var(--red)}
+.card.hot7{border-left:4px solid #d97706}
+.card.fav{box-shadow:0 0 0 2px rgba(245,158,11,.4),var(--shadow)}
+.lab.fav{box-shadow:0 0 0 2px rgba(245,158,11,.45),var(--shadow)}
+.star{border:none;background:transparent;font-size:18px;line-height:1;cursor:pointer;color:#cbd5e1;padding:2px 4px}
+.star.on{color:#f59e0b}
+.star:hover{transform:scale(1.2)}
+.pf-search{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;margin-top:10px}
+.cat-tag{font-size:11px;color:var(--navy);background:var(--blue-bg);padding:2px 8px;border-radius:9px;margin-right:6px;white-space:nowrap}
+/* kanban */
+.kb{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px}
+.kbcol{flex:0 0 212px;background:var(--grey-bg);border-radius:var(--radius);padding:8px;max-width:212px}
+.kbhead{font-size:12.5px;font-weight:700;color:var(--sub);padding:4px 6px;display:flex;justify-content:space-between;align-items:center}
+.kbhead span{background:var(--card);border-radius:9px;padding:0 8px;font-size:11px;color:var(--sub)}
+.kbcard{background:var(--card);border-radius:9px;box-shadow:var(--shadow);padding:9px 10px;margin-bottom:8px}
+.kbcard.hot3{border-left:3px solid var(--red)}
+.kbt{font-size:12.8px;font-weight:600;line-height:1.4}
+.kbm{font-size:11.5px;color:var(--sub);margin:4px 0}
+.kbb{display:flex;gap:5px}
+.kbb button{border:1px solid var(--line);background:var(--card);border-radius:6px;font-size:12px;padding:2px 9px;cursor:pointer;color:var(--sub);font-family:inherit}
+.kbb button:hover:not(:disabled){border-color:var(--navy);color:var(--navy)}
+.kbb button:disabled{opacity:.35;cursor:default}
+.kbb .x{margin-left:auto;color:var(--red)}
+.kbempty{font-size:11.5px;color:var(--grey);text-align:center;padding:10px 0}
+/* modal */
+.mask{position:fixed;inset:0;background:rgba(15,25,50,.5);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:40px 16px;overflow:auto}
+.mask.on{display:flex}
+.modal{background:var(--card);border-radius:14px;max-width:640px;width:100%;padding:22px 24px}
+.modal h2{font-size:17px;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12.5px;color:var(--sub);margin-bottom:4px;font-weight:500}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:13px;font-family:inherit}
+.field textarea{resize:vertical;min-height:64px}
+.modal .acts{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
+/* pitfalls */
+.pf-layout{display:grid;grid-template-columns:190px 1fr;gap:16px}
+.pf-nav{position:sticky;top:130px;align-self:start}
+.pf-nav button{display:block;width:100%;text-align:left;border:none;background:transparent;padding:10px 13px;border-radius:8px;font-size:13.5px;cursor:pointer;color:var(--sub);font-family:inherit}
+.pf-nav button.on{background:var(--card);color:var(--navy);font-weight:600;box-shadow:var(--shadow)}
+.progress{background:var(--card);border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);margin-bottom:14px}
+.bar{height:8px;background:var(--grey-bg);border-radius:6px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#15803d,#22c55e);border-radius:6px;transition:width .4s}
+.pf-item{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:10px;padding:14px 16px;display:flex;gap:12px}
+.pf-item input[type=checkbox]{width:18px;height:18px;margin-top:3px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.pf-item.done h4{text-decoration:line-through;color:var(--grey)}
+.pf-item h4{font-size:14px;margin-bottom:4px}
+.pf-item .row{font-size:12.8px;color:var(--sub);margin-top:3px}
+.pf-item .row b{color:var(--ink)}
+.sev{font-size:11px;padding:1px 8px;border-radius:9px;margin-left:6px;font-weight:500}
+.sev-kill{background:var(--red-bg);color:var(--red)}
+/* labs */
+.lab{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;padding:16px 18px}
+.lab h3{font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lab .loc{font-size:12.5px;color:var(--sub)}
+.badge{font-size:11px;padding:2px 9px;border-radius:10px;font-weight:500}
+.badge-official{background:#e0edff;color:#1d4ed8} .badge-3rd{background:#f3e8ff;color:#7e22ce}
+.caps{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}
+.caps span{font-size:11.5px;background:var(--grey-bg);border-radius:6px;padding:3px 9px;color:#475569}
+.lab p{font-size:12.8px;color:var(--sub);margin-top:6px}
+.kit{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px}
+.kit h3{font-size:15px;margin-bottom:10px;padding-bottom:9px;border-bottom:2px solid var(--blue-bg)}
+.kit ul{list-style:none}
+.kit li{font-size:13px;padding:6px 0 6px 20px;position:relative;border-bottom:1px dashed var(--line)}
+.kit li:last-child{border:none}
+.kit li::before{content:"✓";position:absolute;left:2px;color:var(--green);font-weight:700}
+.kit li b{color:var(--navy)}
+.warnbox{background:var(--red-bg);border:1px solid #f5c9c2;border-radius:var(--radius);padding:13px 16px;font-size:12.8px;color:#7f1d1d;margin-bottom:14px}
+h2.sec{font-size:16px;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+h2.sec::before{content:"";width:4px;height:16px;background:var(--navy);border-radius:2px}
+.muted{font-size:12px;color:var(--grey);margin-top:6px}
+@media(max-width:760px){.pf-layout{grid-template-columns:1fr}.pf-nav{position:static;display:flex;flex-wrap:wrap;gap:6px}.pf-nav button{width:auto}nav{flex-wrap:wrap}nav button{min-width:96px;font-size:13px;padding:9px 6px}.kbcol{flex:0 0 196px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo">🎯</div>
+      <h1>投标情报台<span>消毒产品 · 医疗器械 | 招标雷达 · 进度看板 · 避雷指南 · 检验机构</span></h1>
+    </div>
+    <nav>
+      <button class="on" data-tab="radar">📡 招标雷达</button>
+      <button data-tab="track">📋 投标进度</button>
+      <button data-tab="pitfall">🚨 避雷指南</button>
+      <button data-tab="labs">🔬 检验机构</button>
+      <button data-tab="data">🗂 数据管理</button>
+    </nav>
+  </div>
+</header>
+<main><div class="wrap" id="view"></div></main>
+
+<!-- 添加项目弹窗 -->
+<div class="mask" id="mask">
+  <div class="modal">
+    <h2 id="mTitle">添加招标项目</h2>
+    <div class="grid2">
+      <div class="field" style="grid-column:1/-1"><label>项目名称 *</label><input id="f_name" placeholder="如：XX市人民医院消毒剂采购项目"></div>
+      <div class="field"><label>采购单位</label><input id="f_buyer"></div>
+      <div class="field"><label>城市</label><input id="f_city"></div>
+      <div class="field"><label>品类线</label><select id="f_cat"><option>消毒产品</option><option>医疗器械</option><option>需求调研（前置）</option></select></div>
+      <div class="field"><label>预算（元，可空）</label><input id="f_budget" type="number" placeholder="如 1250000"></div>
+      <div class="field"><label>投标截止 *</label><input id="f_dd" type="datetime-local"></div>
+      <div class="field"><label>文件获取截止（可空）</label><input id="f_docdl" type="datetime-local"></div>
+      <div class="field" style="grid-column:1/-1"><label>公告链接（可空）</label><input id="f_url" placeholder="https://..."></div>
+      <div class="field" style="grid-column:1/-1"><label>备注</label><textarea id="f_note" placeholder="关键要求、资质门槛、联系人等"></textarea></div>
+    </div>
+    <div class="acts">
+      <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveTender()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= 种子数据 ================= */
+const SEED_TENDERS = [
+{id:"t01",cat:"消毒产品",prio:"A",city:"黄山",buyer:"黄山市人民医院",name:"乙醇等消毒剂采购项目（竞争性谈判）",target:"乙醇等消毒剂一批 / 3年长约",budget:1202850,dd:"2026-11-10T09:00",docdl:"2026-11-10T09:00",plat:"黄山市公共资源交易中心",note:"3年长约，折算年额约40万；非政府采购项目，不面向中小微预留。时间极紧，有现成标书才建议冲。",url:"https://ggzy.ah.gov.cn/qtjy/newDetail?bulletinNature=1&guid=35822c20-33e1-4c1a-97b3-57786cc34d74",contact:"HJACG2026T055"},
+{id:"t02",cat:"消毒产品",prio:"A",city:"成都",buyer:"成都市第三人民医院",name:"2026年度过氧乙酸消毒液采购",target:"过氧乙酸消毒液（年框）",budget:480000,dd:"2026-11-24T10:00",docdl:"2026-11-10T23:59",plat:"四川省政府采购一体化平台",note:"★ 文件获取 11/10 截止，投标却到 11/24——最容易错过时间差，这两天必须下载文件。最高单价 35.6 元/升。",url:"https://www.ccgp.gov.cn/cggg/dfgg/gkzb/202611/t20261102_27603411.htm",contact:"N5101012026001734"},
+{id:"t03",cat:"消毒产品",prio:"A",city:"柳州",buyer:"柳州市人民医院",name:"消毒剂采购项目（2个标项）",target:"手消毒液、皮肤消毒液、碘伏、无水乙醇",budget:1255171,dd:"2026-11-11T09:20",docdl:"",plat:"广西政府采购云平台",note:"分标1（117万）+标2（8万）；专门面向中小企业。1年框架，复购属性好。",url:"https://ggzy.jgswj.gxzf.gov.cn/gxggzy/jyxx/001002/001002005/001002005002/20261020/7213e437-ec2d-4f7e-a993-4ebf3d735bcd.html",contact:"LZZC2026-G1-990749-GXTZ"},
+{id:"t04",cat:"消毒产品",prio:"A",city:"贵阳·开阳",buyer:"开阳县楠木渡镇卫生院",name:"医用耗材询价采购（11个项目）",target:"柠檬酸/次氯酸钠/过氧乙酸消毒液、透析耗材",budget:null,dd:"2026-11-11T17:00",docdl:"2026-11-11T17:00",plat:"医院公众号（线下报名）",note:"预算未公开（小额）；11个标项可单投；不得设起送量，按1件配送——门槛低，适合练手+建关系。",url:"http://mp.weixin.qq.com/s?__biz=Mzg4MjY1NzYxMQ==&mid=2247485222&idx=1&sn=b6008a1887380f176d66aa2a9bd9d3d2",contact:"文老师 18817807563"},
+{id:"t05",cat:"消毒产品",prio:"B",city:"贵阳",buyer:"贵阳市公共卫生救治中心",name:"75%酒精消毒液等33种耗材采购",target:"酒精、消毒液及配套耗材共33种",budget:1380622,dd:"2026-11-23T09:30",docdl:"2026-11-22T23:59",plat:"贵阳市公共资源交易中心",note:"★ 专门面向中小微企业，33种耗材打包，一次中标可年供。本批性价比最高。",url:"https://www.ccgp.gov.cn/cggg/dfgg/gkzb/202611/t20261102_27599483.htm",contact:"刘婷 18685126032"},
+{id:"t06",cat:"医疗器械",prio:"B",city:"武汉",buyer:"武昌区积玉桥街社区卫生服务中心",name:"医疗改造项目医疗设备采购",target:"冲击波治疗仪等",budget:1572000,dd:"2026-11-23T09:00",docdl:"",plat:"湖北政府采购网",note:"不接受进口；小微企业价格扣除10%。社区中心改造类项目，参数门槛通常不高。",url:"https://ccgp-hubei.gov.cn/notice/202611/notice_1276066046087569408.html",contact:"HBAYD-26-A-025-3"},
+{id:"t07",cat:"医疗器械",prio:"B",city:"南通",buyer:"竹行街道社区卫生服务中心",name:"高性能多层螺旋CT采购",target:"多层螺旋CT 1套",budget:3300000,dd:"2026-11-23T14:00",docdl:"2026-11-23T23:59",plat:"江苏政府采购网",note:"需厂家授权+装机案例；基层医院CT，国产中标概率较高。",url:"https://www.ccgp.gov.cn/cggg/dfgg/gkzb/202611/t20261102_27604023.htm",contact:"贲智涵 18051668292"},
+{id:"t08",cat:"医疗器械",prio:"C",city:"合肥·肥东",buyer:"张集乡卫生院",name:"螺旋CT采购项目",target:"螺旋CT 1台",budget:2000000,dd:"2026-11-24T09:00",docdl:"2026-11-24T09:00",plat:"安徽合肥公共资源交易",note:"仅需医疗器械生产/经营资格，无其他特殊要求。",url:"https://zfcg.ah.gov.cn/site/detail?parentId=oJCosldFbaJFzmyFhz1c6Q==&articleId=jj+cCOCPIFfeBMD+6fViiw==",contact:"0551-62520515"},
+{id:"t09",cat:"医疗器械",prio:"C",city:"惠州",buyer:"惠州市第三人民医院",name:"超高端螺旋CT采购",target:"超高端螺旋CT 1套",budget:12000000,dd:"2026-11-25T09:00",docdl:"2026-11-24T23:59",plat:"广东省政府采购网",note:"超高端机型，基本锁定进口/头部国产，需原厂授权与三甲装机业绩。",url:"https://www.ccgp.gov.cn/cggg/dfgg/gkzb/202611/t20261102_27605196.htm",contact:"彭小凤 0752-2850226"},
+{id:"t10",cat:"医疗器械",prio:"C",city:"黔东南",buyer:"黔东南州人民医院",name:"中央补助资金采购医疗设备一批",target:"医疗设备一批（详见文件）",budget:778200,dd:"2026-11-25T10:30",docdl:"",plat:"黔东南州公共资源交易中心",note:"中央补助资金项目，付款有保障；金额不大，适合中小设备打包。",url:"https://www.ccgp.gov.cn/cggg/dfgg/gkzb/202611/t20261104_27619268.htm",contact:"JLZX-JSHT-ZBCG-26203-(V)"},
+{id:"t11",cat:"医疗器械",prio:"C",city:"西安",buyer:"西北大学第一医院",name:"256排及以上螺旋CT采购",target:"256排及以上螺旋CT",budget:19300000,dd:"2026-11-26T09:00",docdl:"",plat:"陕西省政府采购综合管理平台",note:"1930万大单，需三类证+原厂授权；参数门槛高。",url:"https://www.ccgp-shaanxi.gov.cn/freecms/site/shaanxi/ggxx/info/2026/8a69c442a149dcac01a199c300017f1e.html",contact:"SCZC2026-ZB-3413-001"},
+{id:"t12",cat:"医疗器械",prio:"C",city:"林芝·墨脱",buyer:"墨脱县人民医院",name:"CT及配套设备采购",target:"CT及配套设备",budget:5000000,dd:"2026-11-26T15:40",docdl:"",plat:"西藏自治区公共资源交易平台",note:"不见面开标；但高原物流与安装成本高，报价需单列。",url:"http://www.ccgp-xizang.gov.cn/freecms/site/xizang/xzcggg/info/2026/176727.html",contact:"GZFCG2026-36783"},
+{id:"t13",cat:"医疗器械",prio:"B",city:"肇庆",buyer:"肇庆市公共卫生临床医疗中心",name:"医疗设备采购项目-DR机等",target:"DR机、医用正负压系统、空压抽吸、牙科台、口腔CBCT",budget:7484500,dd:"2026-11-27T09:30",docdl:"",plat:"广东省政府采购网",note:"★ 3个采购包可分包投；包2「医用正负压系统」属感控/医用气体，与消毒业务衔接最自然。",url:"https://www.ccgp.gov.cn/cggg/dfgg/gkzb/202611/t20261106_27639477.htm",contact:"0730-2611GG0315"},
+{id:"t14",cat:"需求调研（前置）",prio:"A",city:"辽宁·全省",buyer:"辽宁省卫生健康服务中心",name:"2026年度乙类大型医用设备集采 · 需求调研征集",target:"腹腔内窥镜手术系统5台、直线加速器1套",budget:101500000,dd:"",docdl:"",plat:"辽宁省卫健委官网",note:"★★ 不是投标，是「参数还没定」阶段。递交技术参数可影响标书条款，正式招标预计11月内启动。公告未给固定截止，以文件时限为准，越快越好。",url:"https://wsjk.ln.gov.cn/wsjk/index/gsgg/2026110517053459609/index.shtml",contact:"见辽宁省卫健委公告"}
+];
+
+const PORTALS = [
+["中国政府采购网·全文检索","https://search.ccgp.gov.cn/bxsearch?searchtype=1&bidSort=0&pinMu=0&bidType=0&kw=","关键词检索所有政采公告"],
+["全国公共资源交易平台","https://www.ggzy.gov.cn/","地方交易中心汇总，补漏用"],
+["中央政府采购网","https://www.zycg.gov.cn/","部属医院、中央预算单位"],
+["贵州省公共资源交易云","https://ggzy.guizhou.gov.cn/","贵阳/黔东南/开阳项目"],
+["广东省政府采购网","https://gdgpo.czt.gd.gov.cn/","惠州/肇庆等广东项目"],
+["广西政府采购云平台","https://www.gcy.zfcg.gxzf.gov.cn/","柳州等广西项目"],
+["湖北省政府采购网","http://www.ccgp-hubei.gov.cn/","武汉等湖北项目"],
+["安徽省政府采购网","https://zfcg.ah.gov.cn/","黄山/合肥等安徽项目"],
+["辽宁省卫健委官网","https://wsjk.ln.gov.cn/","集采需求调研/采购意向"]
+];
+
+const PITFALLS = [
+{cat:"资格与证照",items:[
+ {t:"证照过期或经营范围不符",s:"医疗器械经营许可证/二类备案覆盖不了所投产品类别；产品注册证过期；营业执照未更新。",a:"建立证照台账，设到期前90天提醒；投标前逐项核对「经营范围/生产范围 ⊇ 所投产品类别」。",k:1},
+ {t:"被列入失信名单",s:"信用中国、中国政府采购网的失信记录在开标当日仍可查到。",a:"投标前7天自查两个网站并截图存证；有记录的项目直接放弃，别赌时限。",k:1},
+ {t:"关联关系撞车",s:"单位负责人为同一人或存在控股、管理关系的不同单位，投同一标段。",a:"多家关联公司分投时，提前查工商股权关系，确保法定代表人不同人。",k:1},
+ {t:"专门面向中小企业项目未提供声明函",s:"许多消毒剂标明确「专门面向中小微」，漏交或格式不符《政府采购促进中小企业发展管理办法》标准文本直接废标。",a:"用财政部最新版声明函模板；注意是要求「供应商」还是「货物制造商」为中小微——两种写法都存在。",k:1},
+ {t:"联合体处理不当",s:"标书写「不接受联合体」却与兄弟公司联合；或接受联合体但未附联合体协议。",a:"逐字核对招标文件联合体条款，接受时协议须各方盖章、明确分工与责任。",k:0}
+]},
+{cat:"报价",items:[
+ {t:"超最高限价",s:"总价超限价、或分项单价超分项限价——只盯总价最容易踩坑。",a:"报价前用 Excel 复核：总价≤限价、每个品目号单价≤对应限价、大小写金额一致。",k:1},
+ {t:"报价表填写错误",s:"串行（把A标价格填到B标）、漏填品目、金额大小写不一致。",a:"打印纸质版逐格核对后再录电子系统；大小写不一致时按大写执行，先改大写。",k:1},
+ {t:"优惠率/折扣计算基准错误",s:"以「优惠率」报价的项目，把优惠率理解为「折后价」，实际算出来超限价。",a:"看清优惠率定义（相对什么基准），用公式验算极限情形。",k:0},
+ {t:"被认定恶意低价",s:"报价明显低于其他投标人或成本价，评标委员会要求澄清不能合理说明。",a:"报价低于次低15%以上时，提前准备成本构成说明（原料+制造费用+税费清单）。",k:0}
+]},
+{cat:"文件与签署",items:[
+ {t:"签字盖章不全",s:"授权代表漏签字、标书漏盖骑缝章、公章名称与营业执照不一致（公司改名后未换章）。",a:"打印《用印清单》：每处签字页、每页骑缝、声明函、承诺函逐项打勾。",k:1},
+ {t:"按格式响应缺失",s:"招标文件给了固定格式（报价表、偏离表、声明函），投标人用自制格式。",a:"所有「按XX格式」条款必须原样使用招标文件格式，一个字都别改表头。",k:1},
+ {t:"电子标书解密失败/逾期上传",s:"CA证书过期、投标文件过大、平台拥堵，开标时无法解密视为撤回。",a:"截止前24小时上传完毕并模拟解密一次；CA证书有效期纳入证照台账。",k:1},
+ {t:"样品送错或不符",s:"样品与投标文件标注型号不一致、未按时送达指定地点。",a:"样品贴标签（项目名+包号+型号+投标人），与投标文件照片存档互相印证。",k:1}
+]},
+{cat:"技术响应",items:[
+ {t:"★号/▲号条款负偏离",s:"带星号的关键参数不满足且未按要求提供证明材料——绝大多数项目直接废标。",a:"做《参数对照表》时先把★▲条款抽出来单独评审；不满足的标趁早放弃，别指望围标。",k:1},
+ {t:"响应表不逐条应答",s:"写「详见检测报告」或留空，被认定为未实质性响应。",a:"逐条写「满足/正偏离/负偏离+页码索引」，让评委3秒内找到证据。",k:0},
+ {t:"检测报告引用标准过期",s:"报告依据的版本是废止版国标，评委认定不满足现行标准要求。",a:"送检前核对标准年号是否现行有效；报告过期或版本过旧的花小钱补检，别硬投。",k:0},
+ {t:"资质证书主体与投标人脱节",s:"检测报告、授权书、注册证上的主体与投标人无任何关联（OEM未提供完整授权链）。",a:"授权链：制造商→全国总代→你，逐级盖章；检测报告主体是制造商时附OEM协议+一致性声明。",k:1}
+]},
+{cat:"程序与其他",items:[
+ {t:"投标有效期不足",s:"招标要求90天，报价承诺只写60天；或有效期从开标日算错起点。",a:"有效期=开标日起算；数字直接抄招标文件，别手打。",k:1},
+ {t:"投标保证金未按要求提交",s:"从非基本账户转出、到账晚于截止、备注漏项目编号。",a:"提前3个工作日转账并电话确认到账；截图留存。",k:0},
+ {t:"未参加开标/未准时解密",s:"电子开标阶段在规定时限内未解密的，投标文件按撤回处理。",a:"开标日设两个闹钟（提前30分钟、提前10分钟登录），安排第二人备份。",k:1},
+ {t:"前期服务供应商限制",s:"为本项目提供设计、参数论证服务的单位或其关联方参与投标被拒。",a:"参与过采购人需求调研、参数编制的，投标前评估是否触发回避条款。",k:0},
+ {t:"进口产品未办核准",s:"标书允许进口但需预先审批，或项目「不接受进口」却投了进口产品。",a:"逐字读「是否采购进口产品」条款；允许进口的提前办财政核准手续。",k:1}
+]}
+];
+
+/* ================= 真实废标案例 ================= */
+const REAL_CASES=[
+{n:"电子标内页漏签字签章，投标无效——投诉还被驳回",loc:"贵州省财政厅 黔财采投处〔2019〕18号",what:"投标人电子投标文件只在外包封盖了公章，PDF 内页均未按要求签字签章，被认定无效投标；后续投诉被驳回——财政厅明确：对采购文件签署要求理解有偏差导致的投标无效，属于自身商业风险。",lesson:"电子标不是盖一个封面章就完事：CA 电子签章要覆盖内页每一处「签字+盖章」要求，逐页核对后再上传。",u:"https://czt.guizhou.gov.cn/zwgk/zdlyxx/xzzf/201907/t20190719_64874628.html"},
+{n:"封面只有公章、没有法定代表人/授权代表签字，符合性审查直接不通过",loc:"北京市东城区财政局投诉处理决定书（财政部87号令第63条）",what:"投标文件正本和副本封面只盖了公章，没有法定代表人或授权代表签字，评标委员会在符合性审查中认定「投标文件的签署」不通过，投标无效。投诉到财政厅也被驳回。",lesson:"87号令第63条写得很清楚：未按要求签署、盖章=投标无效。签字和盖章是两个要求，缺一个都不行。",u:"https://www.bjdch.gov.cn/ztzl/dcqxzzfgs/wbj/dcqczj/zfxxczj/202112/P020230415848600709580.pdf"},
+{n:"标书手写改动处没有签字确认，16页起全部按无效处理",loc:"内蒙古鄂温克族自治旗财政局投诉处理决定书",what:"投标文件第16–25页碳素笔手工填写处，未按招标文件3.6.3条在改动处加盖公章或由法定代表人/授权代表签字确认，被认定为无效投标。投诉人质疑评审不公，财政部门调取开标监控视频核实后驳回投诉。",lesson:"纸质标书凡是手写修改的地方，改动处必须签字或盖章确认——这是招标文件的常见条款，改完不签等于白改。",u:"https://www.ccgp-neimenggu.gov.cn/ueditor/php/upload/file/20180724/1532420888126556.pdf"},
+{n:"剪贴法定代表人手写签名，被认定投标无效",loc:"内蒙古政府采购中心 典型案例541号",what:"电子化采购中，供应商把法定代表人在白纸上的手写签名撕下来粘贴到投标文件再扫描上传，多处签名都有裁剪痕迹，被认定未按要求签署盖章、投标无效；质疑、投诉全部败诉。",lesson:"电子标要么用 CA 电子签章，要么规范手写后整页扫描——任何「贴签名」操作都无法验证真实性，直接无效。",u:"https://www.ccgp-neimenggu.gov.cn/maincms-web/articleNm?id=53b64bec2c894e37936004623c4ed411&type=article"},
+{n:"3份业绩合同全是假的：罚款、没收违法所得46.7万、两年禁入",loc:"四川青神县财政局行政处罚结果公告（2026年3月）",what:"郑州某医疗器械公司在432万手术类设备采购项目中提交3份虚假业绩合同，构成「提供虚假材料谋取中标」：罚款34560元（采购金额千分之八）、没收违法所得46.73万、列入不良行为记录名单、两年内禁止参加政府采购。",lesson:"业绩造假是最重的红线——中不了只是损失机会，中了被查出来是罚款+没收+禁入，直接断送政府采购市场。",u:"https://www.scqs.gov.cn/info/5093/226319.htm"},
+{n:"提供虚假材料谋取中标：中标无效、另案行政处罚",loc:"郑州市财政局（2026年5月，郑州市中心医院宫腹腔镜项目）",what:"财政部门在处理他人投诉的调查过程中，发现中标人存在「提供虚假材料谋取中标」行为，认定其中标、成交无效，行政违法问题另案处理。",lesson:"不要以为没人投诉就安全——财政部门在调查任何投诉时都会顺带核查中标人材料，虚假内容迟早被翻出来。",u:"https://zfcg.henan.gov.cn/henan/content?infoId=1779674992497790"},
+{n:"中标人不具备医疗器械注册准入条件，中标结果无效、重新招标",loc:"河南永城市财政局投诉处理结果公告（2026年10月）",what:"医疗设备采购项目中，原中标人不具备医疗器械注册法定市场准入条件，投标无效；投诉成立，原中标结果无效，责令从合格候选人中另行确定中标供应商。",lesson:"所投产品的注册证类别、适用范围必须能覆盖招标文件的准入要求——「证还在有效期」不等于「证能投这个标」。",u:"https://ycs.zfcg.henan.gov.cn/ycs/content?bz=1&channelCode=D821303&infoId=2038112"},
+{n:"镜体组合不符合注册证要求+业绩造假，中标无效、重新采购、移送处罚",loc:"安徽池州市财政局投诉处理结果公告（2026年10月，妇女儿童医院鼻咽喉镜项目）",what:"中标供应商所投镜体及组合不符合招标文件的特定资格要求（同制造商产品组合方式违反医疗器械注册法规），且存在业绩造假，被认定中标结果无效，责令重新采购，虚假材料问题另启动行政处罚。",lesson:"器械「组合投标」要看注册证的批准型号——注册证上没有的组合方式，说破天也不算数。",u:"https://www.ccgp-anhui.gov.cn/site/detail?articleId=Tr8KIWh9hu51CbG5tbcUUw%3D%3D&parentId=HUvvQIsamzxFW7ovnPIHvQ%3D%3D"},
+{n:"谈判文件要求的专用章没盖，投标无效",loc:"广西北海市财政局投诉处理决定书",what:"竞争性谈判项目中，供应商的谈判总价封面没有造价专业人员盖执业专用章，属于采购文件明确的无效情形；投诉被驳回。财政部门同时援引87号令第63条确认投标无效。",lesson:"每一个盖章要求都对照招标文件清单落实——专用章、执业章、法人章、公章是四种不同的东西。",u:"http://www.beihai.gov.cn/xxgkbm/bhsczj/tzgg_29/t14884522.shtml"}
+];
+
+const LABS = [
+{n:"江苏省疾病预防控制中心 · 消毒与媒介生物防制所",city:"南京",type:"official",caps:["手消毒剂","皮肤黏膜消毒剂","物表消毒剂","医疗器械消毒药械","涉水消毒药械","空气消毒器械","食具消毒柜","灭菌器械","一次性卫生用品","卫生湿巾/消毒湿巾","抗(抑)菌剂","环氧乙烷抗力(EO BIER)","洁净室检测"],d:"原卫生部认定的消毒产品检验机构；CMA 185项、CNAS 207项。主持制定《胍类消毒剂卫生标准》《黏膜消毒剂卫生标准》《抗菌和抑菌效果评价方法》等国标。下设毒理所可做消毒产品毒理学试验（SPF动物房、全自动AMES）。",u:"https://jscdc.cn/jkfw_1691/jsfw/xsjc/jcnl/202312/t20231229_91971.html"},
+{n:"河南省疾病预防控制中心 · 卫生检测检验中心",city:"郑州",type:"official",caps:["消毒产品","一次性卫生用品","涉水产品","毒理（SPF动物房）","微生物鉴定"],d:"公益性事业单位，CMA+CNAS齐全，报告可用于行政审批、市场准入、招投标。官网公开业务电话0371-68089107。",u:"https://www.hncdc.com.cn/sitesources/sjk/page_pc/gzfw/shhfw/index.html"},
+{n:"贵州省疾病预防控制中心",city:"贵阳",type:"official",caps:["消毒剂理化（有效氯/过氧化氢/二氧化氯/过氧乙酸/乙醇/有效碘/戊二醛等）","一次性卫生用品微生物","抑菌性能试验"],d:"CMA证书172400110603；贵州本地消毒产品备案检测的官方渠道，贵阳开阳等地投标配套检测便利。",u:"https://amr.guiyang.gov.cn/xwdt/tzgg/202010/t20201021_64421558.html"},
+{n:"浙江省医疗器械检验研究院",city:"杭州",type:"official",caps:["医用光学（国内领先）","激光设备","电磁兼容","电气安全","生物学评价","医用软件/AI","有源+无源全项"],d:"省药监局直属。CMA 1421项、CNAS 1345项，基本具备医疗器械全项检测能力；国家药监局生物医学光学重点实验室依托单位。",u:"https://mdst.org.cn/index.php?c=category&id=18"},
+{n:"辽宁省医疗器械检验检测院",city:"沈阳",type:"official",caps:["医用X射线（国家级中心）","有源/无源器械","生物学评价","电磁兼容","IVD","药包材","洁净室"],d:"十个国家级医疗器械检验中心之一；CMA/CNAS覆盖1382个项目；医用X射线设备及用具标准化分技术委员会秘书处。辽宁集采设备注册检验可对接。",u:"https://www.lmti.cn/lmti/dwgk/jgzn/3468209842DDB21139AF0587FB90FDFF/index.shtml"},
+{n:"山东省医疗器械和药品包装检验研究院",city:"济南",type:"official",caps:["无源器械（覆盖95%+）","有源器械（85%+）","输注器具（标准归口）","敷料","药包材","GLP"],d:"全国第一家通过CNAS-GLP认可的器械检验机构；全国医用输液器具、卫生材料及敷料标准化归口单位。",u:"https://baike.baidu.com/item/山东省医疗器械产品质量检验中心"},
+{n:"吉林省医疗器械检验研究院",city:"长春",type:"official",caps:["有源/无源器械","生物学评价","IVD","洁净环境监测","医用防护"],d:"省药监局直属公益一类；CMA 715项、CNAS 482项。",u:"https://mpa.jl.gov.cn/xxgk_84894/jgzn/ssyjj/zsdw/ylqxjys"},
+{n:"云南省医疗器械检验研究院",city:"昆明",type:"official",caps:["器械注册检验","药包材","洁净区检测","电磁兼容"],d:"省药监局直属；CMA 1415项，覆盖90%省产器械检验能力；服务面向南亚东南亚。",u:"https://baike.baidu.com/item/云南省医疗器械检验研究院"},
+{n:"广州微生物研究所集团",city:"广州",type:"third",caps:["消毒液/消毒剂备案检测","抗抑菌制剂","一次性卫生用品","微生物检测"],d:"第三方CMA机构，消毒产品备案检测市场化渠道，华南地区响应较快。送检前务必核对其CMA证书附表是否覆盖你的全部检测参数。",u:"http://m.ggwtest.cn/Products-19095408.html"},
+{n:"中科检测",city:"广州",type:"third",caps:["消毒产品备案检测全套","理化","杀灭试验","毒理","消毒器械"],d:"第三方综合检测机构，提供WS 628-2018全项备案检测。同样需核对CMA附表参数级覆盖。",u:"http://m.gzzkjc.net/Article-1658382.html"},
+{n:"陕西新时代生物转化检测有限公司",city:"西安·西咸新区",type:"third",caps:["消毒卫生用品","毒理功能试验","CMA/CATL"],d:"第三方机构，西北区域可就近对接；使用未经计量认证的方法时需要两家机构分别出报告，可作为第二家。",u:"http://mp.weixin.qq.com/s?__biz=Mzg4MjY4MzQzMA==&mid=2247500388&idx=1&sn=2e3f51bc0d120e5ed49a851876ec018"}
+];
+
+const KIT = [
+"<b>四大模块</b>：理化（有效成分、pH、稳定性、连续使用稳定性、铅砷汞、金属腐蚀性）｜微生物杀灭（含中和剂鉴定）｜模拟现场/现场试验｜毒理（急性经口、皮肤/眼刺激、黏膜刺激、致突变等）",
+"<b>类别决定范围</b>：第一类（灭菌剂、器械高水平消毒剂、皮肤黏膜消毒剂等）报告4年有效；第二类（其余消毒剂、抗抑菌制剂等）长期有效、变更才更新",
+"<b>标签联动</b>：写「杀灭真菌」→必做黑曲霉；写「内镜高水平消毒」→必做枯草杆菌黑色变种芽孢；未写「不得用于金属」→必做金属腐蚀性；可连续使用→必做连续使用稳定性",
+"<b>食饮具/瓜果/饮用水对象</b>：重金属只测铅、砷，不测汞",
+"<b>CMA 报告</b>：检测机构须具CMA资质；用未经计量认证的方法时，需两家机构分别出具报告",
+"<b>同一批次原则</b>：首次上市全部项目原则上同一批次完成；补做项目（如增加用途）须重测有效成分含量和pH",
+"<b>四种情形必须重新检测</b>：生产地址迁移/转委托生产、延长有效期、增加使用范围或改变使用方法、第一类四年到期",
+"<b>配方改变 ≠ 补检</b>：配方或器械结构图改变，整个卫生安全评价报告重做",
+"<b>备案平台</b>：全国消毒产品网上备案信息服务平台；责任单位对评价结论负法律责任",
+"<b>标签说明书</b>：须符合 GB 38598《消毒产品标签说明书通用要求》；先定宣称、再定检测项目，顺序反了白花钱"
+];
+
+/* ================= 状态 ================= */
+/* 远程抓取数据（由 scraper.py 定时生成 data/tenders.json） */
+let REMOTE={updatedAt:"",items:[]};
+function remoteToTenders(){
+  return (REMOTE.items||[]).map((r,i)=>({
+    id:"r"+i+"_"+(r.date||""),cat:(/消毒|灭菌|卫生用品|抗抑菌/.test(r.title)?"消毒产品":"医疗器械"),
+    prio:"C",prov:r.province||"",city:r.city||"",buyer:r.agency||"",name:r.title,target:"自动抓取",
+    budget:(r.budget&&r.budget>0)?r.budget:null,dd:r.deadline||"",docdl:"",
+    plat:r.province+" · 自动抓取",note:r.method?("采购方式："+r.method):"",
+    url:r.url||"",contact:""
+  })).filter(t=>t.name);
+}
+function loadRemote(){
+  fetch("data/tenders.json",{cache:"no-store"}).then(r=>r.json()).then(j=>{
+    if(j&&j.items){REMOTE=j; if(TAB==="radar") render();}
+  }).catch(()=>{});
+}
+const LS = "tbqt_v1";
+let state = {added:[],removed:[],checks:{},favs:[],track:{}};
+try{ const s = localStorage.getItem(LS); if(s) state = Object.assign(state, JSON.parse(s)); }catch(e){}
+function persist(){ localStorage.setItem(LS, JSON.stringify(state)); }
+function allTenders(){
+  const base = SEED_TENDERS.filter(t=>!state.removed.includes(t.id)).concat(state.added);
+  const rem = remoteToTenders().filter(rt=>!base.some(b=>b.name===rt.name));
+  return base.concat(rem)
+    .sort((a,b)=>{const da=dl(a),db=dl(b);return (da?da.getTime():Infinity)-(db?db.getTime():Infinity);});
+}
+function dl(t){
+  const ds=[t.dd,t.docdl].filter(Boolean).map(d=>new Date(d));
+  ds.sort((a,b)=>a-b); return ds[0]||null;
+}
+function daysLeft(t){ const d=dl(t); if(!d) return null; return Math.floor((d-new Date())/86400000); }
+function fmt(dtstr){ if(!dtstr)return "—"; const d=new Date(dtstr);
+  return (d.getMonth()+1)+"月"+d.getDate()+"日 "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
+
+/* ================= 视图切换 ================= */
+let TAB="radar";
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); TAB=b.dataset.tab; render();
+});
+const view = document.getElementById("view");
+function render(){
+  if(TAB==="radar") renderRadar();
+  else if(TAB==="track") renderTrack();
+  else if(TAB==="pitfall") renderPitfall();
+  else if(TAB==="labs") renderLabs();
+  else renderData();
+}
+
+/* ================= 投标进度看板 ================= */
+const STAGES=["关注","已报名","已买标书","标书制作中","已投标","已开标/等结果"];
+function boardItems(){
+  return allTenders().filter(t=>state.track[t.id]!=null||state.favs.includes(t.id));
+}
+function renderTrack(){
+  const items=boardItems();
+  view.innerHTML=`
+  <div class="progress">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px">
+      <b style="font-size:15px">投标进度看板</b>
+      <span style="font-size:12.5px;color:var(--sub)">在「招标雷达」给项目点 ★，它就会出现在这里；用 ← → 按钮推进阶段</span>
+    </div>
+  </div>
+  ${items.length? `<div class="kb">${STAGES.map((s,si)=>{
+    const col=items.filter(t=>(state.track[t.id]!=null?state.track[t.id]:0)===si);
+    return `<div class="kbcol"><div class="kbhead">${s}<span>${col.length}</span></div>
+      ${col.map(t=>{
+        const d=daysLeft(t);
+        return `<div class="kbcard ${d!==null&&d>=0&&d<=3?"hot3":""}">
+          <div class="kbt">${esc(t.name)}</div>
+          <div class="kbm">${esc(t.city||"—")} ${d!==null&&d>=0?"· 剩"+d+"天":(d===null?"· 以公告为准":"· 已截止")}</div>
+          <div class="kbb">
+            <button ${si===0?"disabled":""} onclick="moveT('${t.id}',${si-1})">←</button>
+            <button ${si===STAGES.length-1?"disabled":""} onclick="moveT('${t.id}',${si+1})">→</button>
+            <button class="x" onclick="unboard('${t.id}')" title="移出看板并取消重点">✕</button>
+          </div>
+        </div>`;}).join("") || `<div class="kbempty">拖动 ★ 项目到这里</div>`}
+    </div>`;}).join("")}</div>`
+  : `<div class="empty">看板还是空的<br><br>去「招标雷达」给项目点 ★，或者添加自己的项目，就能在这里跟进每个标的状态</div>`}`;
+}
+function moveT(id,s){ state.track[id]=s; persist(); render(); }
+function unboard(id){ delete state.track[id]; state.favs=state.favs.filter(x=>x!==id); persist(); render(); }
+
+/* ================= 招标雷达 ================= */
+let fCat="全部", fPrio="全部", fKw="", fProv="全部", favOnly=false, fSort="dd";
+const PROV_MAP={"黄山":"安徽","合肥":"安徽","成都":"四川","柳州":"广西","贵阳":"贵州","武汉":"湖北","南通":"江苏","惠州":"广东","肇庆":"广东","西安":"陕西","林芝":"西藏","黔东南":"贵州","南京":"江苏","郑州":"河南","杭州":"浙江","济南":"山东","沈阳":"辽宁","长春":"吉林","昆明":"云南","广州":"广东"};
+function provOf(t){
+  if(t.prov) return t.prov;
+  const m=(t.plat||"").match(/^(山东|安徽|新疆)/);
+  if(m) return m[1];
+  const c=t.city||"";
+  for(const k in PROV_MAP){ if(c.indexOf(k)===0) return PROV_MAP[k]; }
+  return "其他";
+}
+function renderRadar(){
+  const all=allTenders();
+  const provs=[...new Set(all.map(provOf))].sort();
+  const list = all.filter(t=>
+    (fCat==="全部"||t.cat===fCat) &&
+    (fPrio==="全部"||t.prio===fPrio) &&
+    (fProv==="全部"||provOf(t)===fProv) &&
+    (!favOnly||state.favs.includes(t.id)) &&
+    (!fKw || (t.name+t.buyer+t.city+(t.note||"")).includes(fKw))
+  );
+  if(fSort==="bd") list.sort((a,b)=>(b.budget||0)-(a.budget||0));
+  else if(fSort==="ba") list.sort((a,b)=>(a.budget||Infinity)-(b.budget||Infinity));
+  const aCount=all.filter(t=>t.prio==="A").length;
+  const urgent=all.filter(t=>{const d=daysLeft(t);return d!==null&&d>=0&&d<=7;}).length;
+  const imminent=all.filter(t=>{const d=daysLeft(t);return d!==null&&d>=0&&d<=2;});
+  const total=all.reduce((s,t)=>s+(t.budget||0),0);
+  const favN=state.favs.length;
+  view.innerHTML = `
+  <div class="remotebar"><span>📡 三省自动抓取（山东 / 安徽 / 新疆）</span><span>数据更新于 <b>${REMOTE.updatedAt||"首次加载中…"}</b> · 共 ${REMOTE.items.length||0} 条 · 安徽处于风控冷却时自动缺失</span></div>
+  <div class="stats">
+    <div class="stat hot"><b>${aCount}</b><i>A类 · 本周必动</i></div>
+    <div class="stat warn"><b>${urgent}</b><i>7天内到期</i></div>
+    <div class="stat money"><b>${(total/10000).toFixed(0)}<small style="font-size:13px">万</small></b><i>在招项目总预算</i></div>
+    <div class="stat ok"><b>${favN}</b><i>★ 重点跟进</i></div>
+    <div class="stat"><b>${all.length}</b><i>在跟项目数</i></div>
+  </div>
+  ${imminent.length?`<div class="warnbox" style="background:var(--amber-bg);border-color:#f2d9ac;color:#7c4a03">⏰ <b>截止提醒</b>（剩余 ≤2 天，已自动置顶）：${imminent.map(t=>`<b>${esc(t.name.slice(0,26))}</b>（${esc(t.city||"—")}·剩 ${daysLeft(t)} 天）`).join("；")}</div>`:""}
+  <div class="toolbar">
+    <input type="text" placeholder="搜索项目 / 采购单位 / 城市…" value="${fKw}" oninput="fKw=this.value;render()">
+    <select class="sel" onchange="fProv=this.value;render()">
+      <option value="全部" ${fProv==="全部"?"selected":""}>全部省份</option>
+      ${provs.map(p=>`<option ${fProv===p?"selected":""}>${p}</option>`).join("")}
+    </select>
+    <select class="sel" onchange="fSort=this.value;render()">
+      <option value="dd" ${fSort==="dd"?"selected":""}>按截止时间</option>
+      <option value="bd" ${fSort==="bd"?"selected":""}>预算从高到低</option>
+      <option value="ba" ${fSort==="ba"?"selected":""}>预算从低到高</option>
+    </select>
+    <button class="chip ${favOnly?"on":""}" onclick="favOnly=!favOnly;render()">★ 重点（${favN}）</button>
+    <button class="chip ${fCat==="全部"?"on":""}" onclick="fCat='全部';render()">全部品类</button>
+    ${["消毒产品","医疗器械","需求调研（前置）"].map(c=>`<button class="chip ${fCat===c?"on":""}" onclick="fCat='${c}';render()">${c}</button>`).join("")}
+    ${["A","B","C"].map(p=>`<button class="chip ${fPrio===p?"on":""}" onclick="fPrio='${fPrio===p?"全部":p}';render()">${p}类</button>`).join("")}
+    <button class="btn btn-primary" onclick="openModal()">＋ 添加项目</button>
+  </div>
+  ${list.map(card).join("") || `<div class="empty">没有匹配的项目</div>`}
+  <h2 class="sec">官方检索入口（点击直达）</h2>
+  <div class="extlinks" style="background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;border:none">
+    ${PORTALS.map(p=>`<a href="${p[1]}" target="_blank" title="${p[2]}">${p[0]} ↗</a>`).join("")}
+  </div>
+  <p class="muted">提示：点项目卡上的 ★ 加入重点并同步到「投标进度」看板；省份下拉可只看山东/安徽/新疆抓取结果。数据保存在本机浏览器，导出入口见「数据管理」。</p>`;
+}
+function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");}
+function card(t){
+  const d = daysLeft(t);
+  let dd;
+  if(d===null) dd=`<span class="dd dd-exp">以公告为准</span>`;
+  else if(d<0) dd=`<span class="dd dd-exp">已截止</span>`;
+  else if(d<=3) dd=`<span class="dd ${d<=1?"dd-0":"dd-3"}">剩 ${d} 天</span>`;
+  else if(d<=7) dd=`<span class="dd dd-7">剩 ${d} 天</span>`;
+  else dd=`<span class="dd dd-ok">剩 ${d} 天</span>`;
+  const tagcls = t.cat.startsWith("需求")?"t-res":(t.cat==="消毒产品"?"t-dis":"t-dev");
+  const dlInfo = dl(t)?`死线 ${fmt(dl(t).toISOString().slice(0,16))}`:"无固定截止";
+  const isSeed = SEED_TENDERS.some(x=>x.id===t.id);
+  const isFav = state.favs.includes(t.id);
+  const hotCls = (d!==null&&d>=0&&d<=3)?"hot3":((d!==null&&d>=0&&d<=7)?"hot7":"");
+  return `<div class="card ${hotCls} ${isFav?"fav":""}">
+    <div class="top">
+      <div><span class="p-${t.prio}" style="padding:2px 9px;border-radius:9px;font-size:11px;font-weight:700;margin-right:6px">${t.prio}</span>
+        <span class="tag ${tagcls}">${t.cat}</span><b style="font-size:14.5px">${esc(t.name)}</b></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="star ${isFav?"on":""}" onclick="fav('${t.id}')" title="重点跟进 / 加入进度看板">★</button>${dd}
+        <button class="btn btn-danger" style="padding:3px 10px;font-size:11.5px" onclick="delTender('${t.id}',${isSeed})" title="从列表移除">移除</button></div>
+    </div>
+    <div class="meta">
+      <span>🏥 <b>${esc(t.buyer||"—")}</b></span>
+      <span>📍 ${esc(t.city||"—")}<i style="font-style:normal;color:var(--grey);font-size:11.5px">（${provOf(t)}）</i></span>
+      <span>💰 ${t.budget?("¥ "+t.budget.toLocaleString()):"预算未公开"}</span>
+      <span>⏰ ${dlInfo}</span>
+      ${t.docdl?`<span>📄 文件获取截止 ${fmt(t.docdl)}</span>`:""}
+      <span>🗂 ${esc(t.plat||"")}</span>
+      ${t.contact?`<span>☎ ${esc(t.contact)}</span>`:""}
+    </div>
+    ${t.note?`<div class="note">${esc(t.note)}</div>`:""}
+    ${t.url?`<div class="extlinks"><a href="${esc(t.url)}" target="_blank">查看公告原文 ↗</a>
+      <a href="https://search.ccgp.gov.cn/bxsearch?searchtype=1&bidSort=0&pinMu=0&bidType=0&kw=${encodeURIComponent(t.buyer||t.name.slice(0,6))}" target="_blank">在政采网查该采购人 ↗</a></div>`:""}
+  </div>`;
+}
+function fav(id){
+  const i=state.favs.indexOf(id);
+  if(i>=0) state.favs.splice(i,1); else state.favs.push(id);
+  persist(); render();
+}
+function delTender(id,isSeed){
+  if(isSeed) state.removed.push(id); else state.added=state.added.filter(t=>t.id!==id);
+  persist(); render();
+}
+function openModal(){
+  document.getElementById("mask").classList.add("on");
+  ["f_name","f_buyer","f_city","f_budget","f_url","f_note"].forEach(i=>document.getElementById(i).value="");
+}
+function closeModal(){ document.getElementById("mask").classList.remove("on"); }
+document.getElementById("mask").addEventListener("click",e=>{if(e.target.id==="mask")closeModal();});
+function saveTender(){
+  const name=document.getElementById("f_name").value.trim();
+  const dd=document.getElementById("f_dd").value;
+  if(!name||!dd){alert("项目名称和投标截止为必填");return;}
+  state.added.push({id:"u"+Date.now(),cat:document.getElementById("f_cat").value,
+    prio:"B",city:document.getElementById("f_city").value.trim(),
+    buyer:document.getElementById("f_buyer").value.trim(),name,
+    target:"",budget:+document.getElementById("f_budget").value||null,
+    dd,docdl:document.getElementById("f_docdl").value||"",plat:"手动添加",
+    note:document.getElementById("f_note").value.trim(),url:document.getElementById("f_url").value.trim(),contact:""});
+  persist(); closeModal(); TAB="radar"; render();
+}
+
+/* ================= 避雷指南 ================= */
+let pfCat=0, pfKw="";
+function pitRow(k,it,catLabel){
+  const on=!!state.checks[k];
+  return `<div class="pf-item ${on?"done":""}">
+    <input type="checkbox" ${on?"checked":""} onchange="state.checks['${k}']=this.checked;persist();render()">
+    <div><h4>${catLabel?`<span class="cat-tag">${catLabel}</span>`:""}${it.t}${it.k?`<span class="sev sev-kill">废标级</span>`:""}</h4>
+      <div class="row"><b>踩坑场景：</b>${it.s}</div>
+      <div class="row"><b>避雷做法：</b><span style="color:var(--green)">✓</span> ${it.a}</div></div>
+  </div>`;
+}
+function renderPitfall(){
+  const cats=PITFALLS.map(c=>c.cat);
+  const total=PITFALLS.reduce((s,c)=>s+c.items.length,0);
+  const done=PITFALLS.reduce((s,c)=>s+c.items.filter((_,i)=>state.checks[c.cat+i]).length,0);
+  let body;
+  if(pfKw){
+    const flat=[]; PITFALLS.forEach(c=>c.items.forEach((it,i)=>{if((it.t+it.s+it.a).includes(pfKw))flat.push({k:c.cat+i,it,cat:c.cat});}));
+    body = flat.length? flat.map(x=>pitRow(x.k,x.it,x.cat)).join("") : `<div class="empty">没有匹配的避雷条目</div>`;
+  }else{
+    body = `<div class="pf-layout">
+    <div class="pf-nav">
+      ${cats.map((c,i)=>`<button class="${pfCat===i?"on":""}" onclick="pfCat=${i};render()">${c}（${PITFALLS[i].items.length}）</button>`).join("")}
+      <button style="color:var(--red);font-size:12.5px" onclick="state.checks={};persist();render()">↺ 重置勾选</button>
+    </div>
+    <div>${PITFALLS[pfCat].items.map((it,i)=>pitRow(PITFALLS[pfCat].cat+i,it,null)).join("")}</div>
+  </div>`;
+  }
+  const cases = pfKw ? REAL_CASES.filter(c=>(c.n+c.what+c.lesson+c.loc).includes(pfKw)) : REAL_CASES;
+  const caseSec = `
+  <h2 class="sec">真实废标案例（${cases.length} 起 · 均附官方处理决定原文）</h2>
+  <p class="muted" style="margin-bottom:10px">来源全部为财政局/政府采购监管部门的公开公告，不限于医疗行业，但废标成因完全通用——重点看每条的「给你的教训」。</p>
+  ${cases.map(c=>`<div class="lab">
+    <h3>⚖️ ${c.n}</h3>
+    <div class="loc">📄 出处：${c.loc}</div>
+    <p><b>案情与结果：</b>${c.what}</p>
+    <p style="color:var(--green)"><b>给你的教训：</b>${c.lesson}</p>
+    <div class="extlinks"><a href="${c.u}" target="_blank">处理决定 / 公告原文 ↗</a></div>
+  </div>`).join("") || `<div class="empty">没有匹配的案例</div>`}`;
+  view.innerHTML=`
+  <div class="progress">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <b style="font-size:15px">投标前自查进度</b>
+      <span style="font-size:12.5px;color:var(--sub)">${done} / ${total} 项已自查${done===total?" · ✅ 可以递交了":""}</span>
+    </div>
+    <div class="bar"><i style="width:${done/total*100}%"></i></div>
+    <input type="text" class="pf-search" placeholder="搜索避雷条目，如：盖章、限价、检测报告、保证金…" value="${pfKw}" oninput="pfKw=this.value;render()">
+    <p class="muted">勾选你已完成核对的条目；换项目时点「重置」重新来一遍。带 <span class="sev sev-kill">废标级</span> 的条目一旦触发无法补救。手机上此页可直接当清单翻。</p>
+  </div>
+  ${body}
+  ${caseSec}`;
+}
+
+/* ================= 检验机构 ================= */
+let labType="all", labKw="";
+const COMMON_CAPS=["稳定性","毒理","杀灭","微生物","环氧乙烷","电磁兼容","生物学评价","抗抑菌","一次性卫生用品","IVD","洁净"];
+function renderLabs(){
+  const kw=labKw.trim();
+  const labs=LABS.filter(l=>(labType==="all"||l.type===labType) &&
+    (!kw || (l.n+l.city+l.d+l.caps.join("")).includes(kw)));
+  const hi=s=> kw && s.includes(kw) ? s.split(kw).join("<mark>"+kw+"</mark>") : s;
+  view.innerHTML=`
+  <div class="warnbox">⚠️ 选择检测机构时，别只看「有没有 CMA」——要核对 <b>CMA 证书附表</b>是否覆盖你产品的<b>每一个检测参数</b>（参数级能力）。范围不符的报告备案会被退回。机构信息会随时间变化，送检前以官网最新公示为准。</div>
+  <div class="toolbar">
+    <input type="text" placeholder="按检测项目 / 机构名 / 城市搜，如：稳定性、毒理、环氧乙烷…" value="${labKw}" oninput="labKw=this.value;render()" style="flex:2;min-width:240px">
+    ${[["all","全部"],["official","官方 / 疾控 / 器检院"],["third","第三方 CMA"]].map(x=>
+      `<button class="chip ${labType===x[0]?"on":""}" onclick="labType='${x[0]}';render()">${x[1]}</button>`).join("")}
+  </div>
+  <div class="toolbar">
+    <span style="font-size:12.5px;color:var(--sub)">常用检测项目，点一下直接搜：</span>
+    ${COMMON_CAPS.map(c=>`<button class="chip ${labKw===c?"on":""}" onclick="labKw=labKw==='${c}'?'':'${c}';render()">${c}</button>`).join("")}
+  </div>
+  ${labs.length? labs.map(l=>{
+    const hit=l.caps.some(c=>kw&&c.includes(kw));
+    return `<div class="lab ${hit?"fav":""}">
+    <h3>${hi(l.n)}<span class="badge ${l.type==="official"?"badge-official":"badge-3rd"}">${l.type==="official"?"官方事业单位":"第三方"}</span>
+      ${hit?`<span class="badge" style="background:var(--amber-bg);color:var(--amber)">✓ 覆盖「${esc(kw)}」</span>`:""}</h3>
+    <div class="loc">📍 ${l.city}</div>
+    <div class="caps">${l.caps.map(c=>`<span>${hi(c)}</span>`).join("")}</div>
+    <p>${l.d}</p>
+    <div class="extlinks"><a href="${l.u}" target="_blank">能力详情 / 来源 ↗</a></div>
+  </div>`;}).join("") : `<div class="empty">没有覆盖该项目的机构——可换个近义词（如「灭菌」「消毒」）再试，或考虑送省疾控咨询</div>`}
+  <h2 class="sec">WS 628-2018 检测项目速查（消毒产品）</h2>
+  <div class="kit"><ul>${KIT.map(k=>`<li>${k}</li>`).join("")}</ul></div>
+  <p class="muted">标准原文：国家卫健委官网公开 PDF《消毒产品卫生安全评价技术要求》（WS 628-2018），检测项目对照表见附录 B–G。配套标准：《消毒技术规范》2002年版、WS/T 10009-2023《消毒产品检测方法》、GB 38598 标签说明书通用要求。</p>`;
+}
+
+/* ================= 数据管理 ================= */
+function renderData(){
+  view.innerHTML=`
+  <div class="kit">
+    <h3>数据管理</h3>
+    <p style="font-size:13px;color:var(--sub)">所有新增项目、移除记录和自查勾选都保存在本机浏览器（localStorage）。换电脑或清缓存前，先导出备份。</p>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="exportData()">⬇ 导出备份（JSON）</button>
+      <label class="btn btn-ghost" style="position:relative">⬆ 导入备份<input type="file" accept=".json" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="importData(this)"></label>
+      <button class="btn btn-danger" onclick="if(confirm('清空所有本地修改（新增/移除/勾选/重点/进度），恢复内置数据？')){state={added:[],removed:[],checks:{},favs:[],track:{}};persist();render();}">↺ 恢复出厂</button>
+    </div>
+    <p class="muted" style="margin-top:14px">当前本地状态：新增 ${state.added.length} 个项目 · 移除 ${state.removed.length} 个内置项目 · 自查勾选 ${Object.keys(state.checks).length} 项 · ★ 重点 ${state.favs.length} 个 · 看板跟踪 ${Object.keys(state.track).length} 个</p>
+  </div>
+  <div class="kit">
+    <h3>本应用的使用建议</h3>
+    <ul>
+      <li><b>招标雷达</b>：内置项目是快照 + 三省自动抓取；用省份下拉只看山东/安徽/新疆，点 ★ 把要投的项目加入重点，预算排序用来快速找大单</li>
+      <li><b>投标进度</b>：★ 过的项目自动进看板，6 个阶段（关注→报名→买标书→做标书→投标→开标），← → 推进状态</li>
+      <li><b>避雷指南</b>：每投一个标过一遍全部条目，顶部搜索框可按关键词查（如「盖章」「限价」），重点盯「废标级」标记</li>
+      <li><b>检验机构</b>：点「稳定性 / 毒理 / 环氧乙烷」等常用项目标签，直接筛出覆盖该项目的机构，绿色描边 = 能力表命中</li>
+      <li><b>下一步扩展</b>：自动抓取已就绪（见 README 部署文档），后续可加多人协作或微信推送</li>
+    </ul>
+  </div>`;
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="投标情报台备份_"+new Date().toISOString().slice(0,10)+".json";a.click();
+}
+function importData(input){
+  const f=input.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{state=Object.assign({added:[],removed:[],checks:{},favs:[],track:{}},JSON.parse(r.result));persist();alert("导入成功");render();}catch(e){alert("文件格式不正确");}};
+  r.readAsText(f);
+}
+render();
+loadRemote();
+</script>
+</body>
+</html>

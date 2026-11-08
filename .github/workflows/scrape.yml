@@ -1,0 +1,45 @@
+# 三省招标自动抓取 · 定时任务配置（GitHub Actions）
+#
+# 用法：
+# 1. 在 GitHub 建一个仓库，把 bidapp 目录内容传上去，并将本文件放到
+#    仓库的 .github/workflows/scrape.yml
+# 2. 仓库开启 GitHub Pages（Settings → Pages → 分支选 main /docs 或根目录）
+# 3. 之后每天自动抓取 2 次，结果提交回仓库，前端通过 Pages 地址拉取 data/tenders.json
+# 4. 免费方案，无需服务器；如数据量大再考虑轻量云服务器
+
+name: scrape-tenders
+
+on:
+  schedule:
+    - cron: "0 22 * * *"   # UTC 22:00 = 北京时间次日 6:00
+    - cron: "0 6 * * *"    # UTC 6:00  = 北京时间 14:00
+  workflow_dispatch: {}     # 支持手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 安装依赖
+        run: |
+          pip install requests playwright
+          playwright install chromium --with-deps
+
+      - name: 抓取三省公告
+        run: python scraper.py
+
+      - name: 提交数据
+        run: |
+          git config user.name "tenders-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/tenders.json
+          git diff --cached --quiet && echo "无更新" || git commit -m "数据更新 $(date -u +%F\ %H:%M) UTC"
+          git push

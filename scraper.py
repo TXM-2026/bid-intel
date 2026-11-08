@@ -173,7 +173,7 @@ def main():
         xinjiang(items, seen)
     items.sort(key=lambda x: x.get("date", ""), reverse=True)
 
-    # 保护：全部源都失败时不要用空数据覆盖旧数据（常见于境外 IP 访问被拒）
+    # 保护1：全部源都失败时不要用空数据覆盖旧数据（常见于境外 IP 访问被拒）
     if not items:
         old = 0
         if os.path.exists(OUT):
@@ -183,6 +183,24 @@ def main():
                 old = 0
         print(f"警告：本次 0 条（网络不可达或全部被拦截），保留旧数据 {old} 条，退出码 2")
         sys.exit(2)
+
+    # 保护2：某个省本次 0 条（风控/临时故障）时，保留该省上一版数据，避免整块消失
+    got_prov = {i.get("province") for i in items}
+    if os.path.exists(OUT):
+        try:
+            old_items = json.load(open(OUT, encoding="utf-8")).get("items") or []
+            carried = {}
+            for i in old_items:
+                p = i.get("province")
+                if p and p not in got_prov:
+                    carried.setdefault(p, []).append(i)
+            for p, lst in carried.items():
+                print(f"  [保护] {p} 本次 0 条，沿用上一版 {len(lst)} 条")
+                items.extend(lst)
+        except Exception as e:
+            print(f"  [保护] 读取旧数据失败：{e}")
+
+    items.sort(key=lambda x: x.get("date", ""), reverse=True)
 
     out = {"updatedAt": datetime.now().strftime("%Y-%m-%d %H:%M"),
            "keywords": KEEP[:4], "count": len(items), "items": items}

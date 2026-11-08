@@ -1,19 +1,23 @@
-# 三省招标自动抓取 · 定时任务配置（GitHub Actions）
+# 三省招标抓取 · 定时任务
 #
-# 用法：
-# 1. 在 GitHub 建一个仓库，把 bidapp 目录内容传上去，并将本文件放到
-#    仓库的 .github/workflows/scrape.yml
-# 2. 仓库开启 GitHub Pages（Settings → Pages → 分支选 main /docs 或根目录）
-# 3. 之后每天自动抓取 2 次，结果提交回仓库，前端通过 Pages 地址拉取 data/tenders.json
-# 4. 免费方案，无需服务器；如数据量大再考虑轻量云服务器
+# ⚠️ 重要说明（实测结论 2026-11-08）
+# GitHub Actions 的运行服务器位于境外（Azure 美国西部），实测无法访问：
+#   山东 www.ccgp-shandong.gov.cn:8087 → Network is unreachable
+#   安徽 zfcg.ah.gov.cn                → 返回拦截页（非 JSON）
+#   新疆 www.ccgp-xinjiang.gov.cn      → 渲染 0 条
+# 因此本工作流的「定时自动抓取」在 GitHub 上无法生效，schedule 已注释。
+# 保留文件是为了将来接入境内 runner 或阿里云 FC / 腾讯云 SCF 时复用。
+#
+# 当前可用的更新方式：
+#   助手在境内环境执行 scraper.py → 推送到本仓库 → GitHub Pages 自动重新发布。
 
 name: scrape-tenders
 
 on:
-  schedule:
-    - cron: "0 22 * * *"   # UTC 22:00 = 北京时间次日 6:00
-    - cron: "0 6 * * *"    # UTC 6:00  = 北京时间 14:00
-  workflow_dispatch: {}     # 支持手动触发
+  # schedule:
+  #   - cron: "0 22 * * *"   # UTC 22:00 = 北京时间次日 6:00
+  #   - cron: "0 6 * * *"    # UTC 6:00  = 北京时间 14:00
+  workflow_dispatch: {}     # 仅手动触发（需境内网络环境）
 
 permissions:
   contents: write

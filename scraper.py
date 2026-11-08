@@ -172,6 +172,18 @@ def main():
     if "--no-xinjiang" not in sys.argv:
         xinjiang(items, seen)
     items.sort(key=lambda x: x.get("date", ""), reverse=True)
+
+    # 保护：全部源都失败时不要用空数据覆盖旧数据（常见于境外 IP 访问被拒）
+    if not items:
+        old = 0
+        if os.path.exists(OUT):
+            try:
+                old = len(json.load(open(OUT, encoding="utf-8")).get("items") or [])
+            except Exception:
+                old = 0
+        print(f"警告：本次 0 条（网络不可达或全部被拦截），保留旧数据 {old} 条，退出码 2")
+        sys.exit(2)
+
     out = {"updatedAt": datetime.now().strftime("%Y-%m-%d %H:%M"),
            "keywords": KEEP[:4], "count": len(items), "items": items}
     with open(OUT, "w", encoding="utf-8") as f:

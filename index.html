@@ -44,6 +44,14 @@ main{padding:20px 0 60px}
 .ntag-closed{background:var(--grey-bg);color:var(--grey)}
 .ntag-unk{background:var(--amber-bg);color:var(--amber)}
 .card.closed{opacity:.6;background:#fbfbfc}
+.guide{margin-top:9px;border:1px dashed #e2e6ec;border-radius:8px;padding:0 11px;background:#fcfcfd}
+.guide summary{cursor:pointer;font-size:12.5px;color:var(--navy);font-weight:600;padding:9px 0;list-style:none;outline:none}
+.guide summary::-webkit-details-marker{display:none}
+.guide summary:before{content:"▸ ";color:var(--grey);font-weight:400}
+.guide[open] summary:before{content:"▾ "}
+.gbody{font-size:12.5px;color:var(--sub);line-height:1.7;padding:0 0 11px}
+.gbody p{margin:0 0 7px}
+.gti{color:var(--amber);background:var(--amber-bg);border-radius:6px;padding:6px 9px;margin-bottom:0!important}
 .card .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
 .card h3{font-size:15px;font-weight:600}
 .tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:10px;font-weight:500;margin-right:5px;vertical-align:1px}
@@ -301,7 +309,7 @@ function loadRemote(){
   }).catch(()=>{});
 }
 const LS = "tbqt_v1";
-let state = {added:[],removed:[],checks:{},favs:[],track:{}};
+let state = {added:[],removed:[],checks:{},favs:[],track:{},showPhone:false};
 try{ const s = localStorage.getItem(LS); if(s) state = Object.assign(state, JSON.parse(s)); }catch(e){}
 function persist(){ localStorage.setItem(LS, JSON.stringify(state)); }
 function allTenders(){
@@ -378,6 +386,24 @@ function noticeType(t){
   return "unk";
 }
 const NT_LABEL={bid:"可投标",closed:"已结束",unk:"类型待核"};
+/* 联系方式识别：区分「真电话/联系人」和「项目编号」（抓取时常把编号写进联系人字段） */
+function contactInfo(t){
+  const c=(t.contact||"").trim();
+  if(!c) return null;
+  // 先排除项目编号：纯字母数字短横线、含英文字母（如 N5101012026001734、HBAYD-26-A-025-3）
+  if(/^[A-Za-z0-9\-()（）\/\.]+$/.test(c) && /[A-Za-z]/.test(c)) return {kind:"code",text:c};
+  const hasPhone=/1[3-9]\d{9}|0\d{2,3}[-\s]?\d{7,8}/.test(c);
+  const hasName=/[\u4e00-\u9fa5]{2,4}/.test(c);
+  if(hasPhone||hasName) return {kind:"phone",text:c};
+  return {kind:"text",text:c};
+}
+/* 电话脱敏：默认遮挡中间，点一下看完整 */
+function maskPhone(s){
+  if(state.showPhone) return s;
+  return s.replace(/1([3-9])\d{4}(\d{4})/g,(m,a,b)=>"1"+a+"****"+b)
+          .replace(/(0\d{2,3})[-\s]?\d{3,4}(\d{4})/g,(m,a,b)=>a+"-****"+b);
+}
+function togglePhone(){ state.showPhone=!state.showPhone; persist(); render(); }
 const PROV_MAP={"黄山":"安徽","合肥":"安徽","成都":"四川","柳州":"广西","贵阳":"贵州","武汉":"湖北","南通":"江苏","惠州":"广东","肇庆":"广东","西安":"陕西","林芝":"西藏","黔东南":"贵州","南京":"江苏","郑州":"河南","杭州":"浙江","济南":"山东","沈阳":"辽宁","长春":"吉林","昆明":"云南","广州":"广东"};
 function provOf(t){
   if(t.prov) return t.prov;
@@ -440,7 +466,7 @@ function renderRadar(){
   <div class="extlinks" style="background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;border:none">
     ${PORTALS.map(p=>`<a href="${p[1]}" target="_blank" title="${p[2]}">${p[0]} ↗</a>`).join("")}
   </div>
-  <p class="muted">提示：点项目卡上的 ★ 加入重点并同步到「投标进度」看板；省份下拉可只看山东/安徽/新疆抓取结果。数据保存在本机浏览器，导出入口见「数据管理」。</p>`;
+  <p class="muted">提示：点项目卡上的 ★ 加入重点并同步到「投标进度」看板；省份下拉可只看山东/安徽/新疆抓取结果。<b>电话默认遮挡中间四位</b>，点一下号码可切换完整显示——这些号码都来自政府采购公告原文（依法公开），仅用于业务联系。数据保存在本机浏览器，导出入口见「数据管理」。</p>`;
 }
 function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");}
 function card(t){
@@ -458,6 +484,12 @@ function card(t){
   const hotCls = (d!==null&&d>=0&&d<=3)?"hot3":((d!==null&&d>=0&&d<=7)?"hot7":"");
   const nt = noticeType(t);
   const ntag = `<span class="ntag ntag-${nt}">${NT_LABEL[nt]}</span>`;
+  const ci = contactInfo(t);
+  const contactHtml = ci
+    ? (ci.kind==="phone"
+        ? `<span onclick="togglePhone()" style="cursor:pointer" title="点击${state.showPhone?"隐藏":"显示"}完整号码">☎ ${esc(maskPhone(ci.text))}</span>`
+        : `<span title="公告中的项目编号，非联系电话">🏷 编号 ${esc(ci.text)}</span>`)
+    : "";
   return `<div class="card ${hotCls} ${isFav?"fav":""} ${nt==="closed"?"closed":""}">
     <div class="top">
       <div>${ntag}<span class="p-${t.prio}" style="padding:2px 9px;border-radius:9px;font-size:11px;font-weight:700;margin-right:6px">${t.prio}</span>
@@ -473,9 +505,17 @@ function card(t){
       <span>⏰ ${dlInfo}</span>
       ${t.docdl?`<span>📄 文件获取截止 ${fmt(t.docdl)}</span>`:""}
       <span>🗂 ${esc(t.plat||"")}</span>
-      ${t.contact?`<span>☎ ${esc(t.contact)}</span>`:""}
+      ${contactHtml}
     </div>
     ${t.note?`<div class="note">${esc(t.note)}</div>`:""}
+    ${nt==="bid"?`<details class="guide"><summary>📋 怎么拿到招标文件（三步 + 电话话术）</summary>
+      <div class="gbody">
+        <p><b>① 先打电话问（最快）</b>——公告里的采购人/代理机构联系人就是干这个的，一句话问清"怎么报名、标书怎么获取、要不要办 CA"，比自己摸索快得多。</p>
+        <p><b>照着说</b>：「您好，我在${esc(t.plat||"政府采购网")}看到「${esc((t.name||"").slice(0,26))}」的公告，我们公司想参与投标，请问标书怎么获取？需要在哪个平台注册、要不要办数字证书？」</p>
+        <p><b>② 电脑上注册报名</b>——按公告"获取招标文件"一节里写的时间、平台操作：注册企业账号（营业执照 + 法人实名）→ 找到该项目点「投标报名」→ 下载标书。部分项目要交工本费或办 CA 锁。</p>
+        <p><b>③ 盯住"文件获取截止"</b>——这个时间和投标截止是两回事，通常早好几天，过了就彻底没资格。</p>
+        <p class="gti">⚠️ 手机上基本办不了报名：这些系统多是电脑网页，依赖控件或 CA 证书。</p>
+      </div></details>`:""}
     ${t.url?`<div class="extlinks"><a href="${esc(t.url)}" target="_blank">查看公告原文 ↗</a>
       <a href="https://search.ccgp.gov.cn/bxsearch?searchtype=1&bidSort=0&pinMu=0&bidType=0&kw=${encodeURIComponent(t.buyer||t.name.slice(0,6))}" target="_blank">在政采网查该采购人 ↗</a></div>`:""}
   </div>`;

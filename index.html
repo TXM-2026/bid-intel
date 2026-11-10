@@ -140,6 +140,10 @@ mark{background:#fde68a;padding:0 2px;border-radius:3px}
 .kit li:last-child{border:none}
 .kit li::before{content:"✓";position:absolute;left:2px;color:var(--green);font-weight:700}
 .kit li b{color:var(--navy)}
+/* ws628 */
+.wcls{font-size:11px;padding:2px 9px;border-radius:10px;font-weight:600}
+.wcls-1{background:var(--red-bg);color:var(--red)} .wcls-2{background:#f3e8ff;color:#7e22ce} .wcls-0{background:#e8f5ec;color:var(--green)}
+.wuse{font-size:11.5px;color:var(--sub);margin-top:4px}
 .warnbox{background:var(--red-bg);border:1px solid #f5c9c2;border-radius:var(--radius);padding:13px 16px;font-size:12.8px;color:#7f1d1d;margin-bottom:14px}
 h2.sec{font-size:16px;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
 h2.sec::before{content:"";width:4px;height:16px;background:var(--navy);border-radius:2px}
@@ -152,13 +156,14 @@ h2.sec::before{content:"";width:4px;height:16px;background:var(--navy);border-ra
   <div class="wrap">
     <div class="brand">
       <div class="logo">🎯</div>
-      <h1>投标情报台<span>消毒产品 · 医疗器械 | 招标雷达 · 进度看板 · 避雷指南 · 检验机构</span></h1>
+      <h1>投标情报台<span>消毒产品 · 医疗器械 | 招标雷达 · 避雷指南 · 检验机构 · WS 628 检测标准</span></h1>
     </div>
     <nav>
       <button class="on" data-tab="radar">📡 招标雷达</button>
       <button data-tab="track">📋 投标进度</button>
       <button data-tab="pitfall">🚨 避雷指南</button>
       <button data-tab="labs">🔬 检验机构</button>
+      <button data-tab="ws628">🧪 检测标准</button>
       <button data-tab="data">🗂 数据管理</button>
     </nav>
   </div>
@@ -340,6 +345,7 @@ function render(){
   else if(TAB==="track") renderTrack();
   else if(TAB==="pitfall") renderPitfall();
   else if(TAB==="labs") renderLabs();
+  else if(TAB==="ws628") renderWs628();
   else renderData();
 }
 
@@ -637,6 +643,96 @@ function renderLabs(){
   <p class="muted">标准原文：国家卫健委官网公开 PDF《消毒产品卫生安全评价技术要求》（WS 628-2018），检测项目对照表见附录 B–G。配套标准：《消毒技术规范》2002年版、WS/T 10009-2023《消毒产品检测方法》、GB 38598 标签说明书通用要求。</p>`;
 }
 
+/* ================= WS 628-2018 检测标准 ================= */
+let ws628Kw="";
+const WS628_SCOPE=[
+{cls:"1",clsName:"第一类 · 高风险",prod:"灭菌剂与高水平消毒剂",ex:"戊二醛/邻苯二醛、过氧乙酸、过氧化氢（≥3%，器械用）、环氧乙烷、含氯高水平消毒剂、低温灭菌器械（过氧化氢等离子体灭菌器、低温蒸汽甲醛、环氧乙烷灭菌器）、紫外线杀菌灯车（器械消毒用）",mgmt:"卫生安全评价报告 → 省级卫健委备案后上市"},
+{cls:"1",clsName:"第一类 · 高风险",prod:"生物指示物",ex:"用于灭菌效果监测的生物指示剂（嗜热脂肪杆菌芽孢等）",mgmt:"同上，评价后备案"},
+{cls:"1",clsName:"第一类 · 高风险",prod:"灭菌包装物 / 无菌屏障系统",ex:"灭菌袋、灭菌卷袋、灭菌盒用无纺布/纺织包裹材料",mgmt:"同上，评价后备案"},
+{cls:"2",clsName:"第二类 · 中风险",prod:"中低水平消毒剂",ex:"手消毒剂、皮肤黏膜消毒剂（碘伏、氯己定）、物体表面/环境消毒剂（含氯<高水平用途、季铵盐、75%酒精）、空气消毒剂",mgmt:"卫生安全评价报告 → 备案（资料项比第一类少）"},
+{cls:"2",clsName:"第二类 · 中风险",prod:"普通消毒器械",ex:"空气消毒机、紫外线灯（空气/物体表面用）、臭氧发生器、床单元消毒机",mgmt:"同上，评价后备案"},
+{cls:"2",clsName:"第二类 · 中风险",prod:"化学指示物",ex:"灭菌过程化学指示卡/胶带/BD测试",mgmt:"同上，评价后备案"},
+{cls:"2",clsName:"第二类 · 中风险",prod:"抗（抑）菌制剂",ex:"抗菌洗液、抑菌凝胶、卫生湿巾、漱口水、女性护理液（宣称抗菌/抑菌功能）",mgmt:"卫生安全评价报告 → 备案"},
+{cls:"0",clsName:"不做卫生安全评价",prod:"不按消毒产品管理的相关品",ex:"普通湿巾/纸巾（不宣称杀菌）、一次性使用医疗用品（按医疗器械注册/备案管理）、普通清洁剂",mgmt:"按对应行业的国家标准出厂检验即可，不需要 WS 628 评价"}
+];
+const WS628_TESTS=[
+{cat:"消毒剂 · 第一类（灭菌剂 / 高水平消毒剂）",who:"第一类",items:[
+ "有效成分含量（含开瓶后/稀释使用中的稳定性）",
+ "pH 值（酸碱度影响效果时必测）",
+ "稳定性试验（原包装 + 开瓶后两个状态）",
+ "金属腐蚀性（用于金属器械、器具时）",
+ "实验室杀灭试验：细菌繁殖体、细菌芽孢、真菌、分枝杆菌、病毒——按说明书宣称的杀灭范围逐项做",
+ "连续使用稳定性（反复稀释/连续使用的消毒剂）",
+ "模拟现场试验 + 现场试验（器械灭菌/消毒用途）",
+ "毒理全套：急性经口毒性、急性吸入（熏蒸/喷雾使用）、一次与多次完整皮肤刺激、阴道黏膜刺激（如适用）、致突变试验（Ames 试验/微核试验）"
+]},
+{cat:"消毒剂 · 第二类（中低水平）",who:"第二类",items:[
+ "有效成分含量、pH 值",
+ "稳定性试验（原包装 + 开瓶后）",
+ "实验室杀灭试验：大肠杆菌、金黄色葡萄球菌、白色念珠菌——宣称杀灭其他微生物的另加",
+ "现场试验：皮肤 / 手 / 物体表面 / 空气——按宣称用途对应做",
+ "毒理：急性经口毒性、一次皮肤刺激；反复接触的加多次皮肤刺激；接触眼周/黏膜的加相应刺激试验"
+]},
+{cat:"消毒器械",who:"两类都有",items:[
+ "杀菌因子强度 / 主要性能参数（紫外线辐照强度、臭氧浓度、等离子体过氧化氢浓度等）",
+ "寿命 / 连续工作试验",
+ "实验室杀灭试验（第一类含芽孢；第二类大肠杆菌、金葡菌、白念）",
+ "模拟现场试验 + 现场试验",
+ "安全性：紫外线泄漏量、臭氧泄漏量、噪声；环氧乙烷灭菌器加环氧乙烷残留",
+ "整机加测电气安全（GB 4706 系列）与电磁兼容"
+]},
+{cat:"生物指示物（第一类）/ 化学指示物（第二类）",who:"两类都有",items:[
+ "生物指示物：活菌数（含菌量）、D 值 / 抗力、存活-杀灭时间、稳定性",
+ "化学指示物：终点变色性能、精度（响应一致性）、稳定性"
+]},
+{cat:"灭菌包装物（第一类）",who:"第一类",items:[
+ "密封强度 / 剥离强度；透气型加透气性能",
+ "微生物屏障性能",
+ "与灭菌因子的相容性（湿热 / 环氧乙烷 / 过氧化氢按宣称）",
+ "化学性能（溶出物）、稳定性"
+]},
+{cat:"抗（抑）菌制剂（第二类）",who:"第二类",items:[
+ "抑菌率 / 抗菌率：大肠杆菌、金黄色葡萄球菌、白色念珠菌",
+ "pH 值、稳定性试验（原包装 + 开瓶后）",
+ "毒理：急性经口毒性、一次皮肤刺激；反复使用的加多次皮肤刺激",
+ "含有效成分的加有效成分含量测定"
+]}
+];
+function renderWs628(){
+  const kw=ws628Kw.trim();
+  const hit=s=>!kw||s.includes(kw);
+  const scope=WS628_SCOPE.filter(s=>hit(s.prod+s.ex+s.clsName+s.mgmt));
+  const tests=WS628_TESTS.filter(t=>hit(t.cat+t.items.join("")));
+  const clsBadge=c=>`<span class="wcls wcls-${c}">${c==="1"?"第一类 高风险":c==="2"?"第二类 中风险":"不需评价"}</span>`;
+  view.innerHTML=`
+  <div class="warnbox">📌 依据 <b>WS 628-2018《消毒产品卫生安全评价技术要求》</b>：第一类、第二类消毒产品上市前必须完成<b>卫生安全评价并备案</b>，检测项目按<b>产品说明书宣称的用途</b>选做——说明书宣称什么，检测就要覆盖什么，少检一个参数备案都会被退回。检验方法依据《消毒技术规范》(2002年版) 和 WS/T 10009-2023。</div>
+  <div class="toolbar">
+    <input type="text" placeholder="搜产品或检测项目，如：戊二醛、湿巾、稳定性、毒理…" value="${ws628Kw}" oninput="ws628Kw=this.value;render()" style="flex:2;min-width:240px">
+  </div>
+  <h2 class="sec">哪些产品要做 WS 628 评价（${scope.length} 类）</h2>
+  ${scope.map(s=>`<div class="lab">
+    <h3>${s.prod} ${clsBadge(s.cls)}</h3>
+    <div class="wuse"><b>典型产品：</b>${s.ex}</div>
+    <div class="wuse" style="color:var(--navy)"><b>管理方式：</b>${s.mgmt}</div>
+  </div>`).join("") || `<div class="empty">没有匹配的产品类别</div>`}
+  <h2 class="sec">需要检测什么（${tests.length} 类 · 按产品类型）</h2>
+  ${tests.map(t=>`<div class="kit">
+    <h3>${t.cat} ${t.who==="两类都有"?`<span class="wcls wcls-1">第一类</span><span class="wcls wcls-2">第二类</span>`:clsBadge(t.who==="第一类"?"1":"2")}</h3>
+    <ul>${t.items.map(i=>`<li>${i}</li>`).join("")}</ul>
+  </div>`).join("") || `<div class="empty">没有匹配的检测项目</div>`}
+  <div class="kit">
+    <h3>送检前必看的 5 条提醒</h3>
+    <ul>
+      <li><b>报告必须 CMA</b>：出具检验报告的机构要有 CMA 资质，且其「能力附表」覆盖你产品的每一个参数——可在「检验机构」页筛选</li>
+      <li><b>标准现行有效</b>：报告引用的标准年号必须现行，如《消毒技术规范》2002 年版、WS/T 10009-2023，过期版本备案会被退回</li>
+      <li><b>宣称即检测</b>：说明书多写一个「杀灭脊髓灰质炎病毒」，就要多一项病毒杀灭试验——先定说明书、再定检测清单，顺序别反</li>
+      <li><b>配方变了重新评</b>：配方、结构、灭菌工艺发生改变，原卫生安全评价报告作废，需重新检测、重新备案</li>
+      <li><b>标签说明书同步合规</b>：标签说明书还要满足 GB 38598《消毒产品标签说明书通用要求》，与评价资料保持一致</li>
+    </ul>
+  </div>
+  <p class="muted">标准原文：国家卫健委官网公开 PDF《消毒产品卫生安全评价技术要求》（WS 628-2018），检验项目对照表见附录 A。相关标准：《消毒技术规范》2002 年版、WS/T 10009-2023《消毒产品检测方法》、GB 38598 标签说明书通用要求。</p>`;
+}
+
 /* ================= 数据管理 ================= */
 function renderData(){
   view.innerHTML=`
@@ -657,6 +753,7 @@ function renderData(){
       <li><b>投标进度</b>：★ 过的项目自动进看板，6 个阶段（关注→报名→买标书→做标书→投标→开标），← → 推进状态</li>
       <li><b>避雷指南</b>：每投一个标过一遍全部条目，顶部搜索框可按关键词查（如「盖章」「限价」），重点盯「废标级」标记</li>
       <li><b>检验机构</b>：点「稳定性 / 毒理 / 环氧乙烷」等常用项目标签，直接筛出覆盖该项目的机构，绿色描边 = 能力表命中</li>
+      <li><b>检测标准</b>：WS 628-2018 的产品分类（第一类/第二类）与检测项目速查，配检验机构页一起用——先查「要检什么」，再筛「谁家能检」</li>
       <li><b>下一步扩展</b>：自动抓取已就绪（见 README 部署文档），后续可加多人协作或微信推送</li>
     </ul>
   </div>`;

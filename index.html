@@ -144,6 +144,10 @@ mark{background:#fde68a;padding:0 2px;border-radius:3px}
 .wcls{font-size:11px;padding:2px 9px;border-radius:10px;font-weight:600}
 .wcls-1{background:var(--red-bg);color:var(--red)} .wcls-2{background:#f3e8ff;color:#7e22ce} .wcls-0{background:#e8f5ec;color:var(--green)}
 .wuse{font-size:11.5px;color:var(--sub);margin-top:4px}
+.plist{list-style:none;margin-top:2px}
+.plist li{font-size:12.8px;color:var(--sub);padding:4px 0 4px 15px;position:relative;border-bottom:1px dashed var(--line)}
+.plist li:last-child{border:none}
+.plist li::before{content:"·";position:absolute;left:2px;color:var(--navy);font-weight:700;font-size:16px;line-height:1.2}
 .warnbox{background:var(--red-bg);border:1px solid #f5c9c2;border-radius:var(--radius);padding:13px 16px;font-size:12.8px;color:#7f1d1d;margin-bottom:14px}
 h2.sec{font-size:16px;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
 h2.sec::before{content:"";width:4px;height:16px;background:var(--navy);border-radius:2px}
@@ -655,6 +659,61 @@ const WS628_SCOPE=[
 {cls:"2",clsName:"第二类 · 中风险",prod:"抗（抑）菌制剂",ex:"抗菌洗液、抑菌凝胶、卫生湿巾、漱口水、女性护理液（宣称抗菌/抑菌功能）",mgmt:"卫生安全评价报告 → 备案"},
 {cls:"0",clsName:"不做卫生安全评价",prod:"不按消毒产品管理的相关品",ex:"普通湿巾/纸巾（不宣称杀菌）、一次性使用医疗用品（按医疗器械注册/备案管理）、普通清洁剂",mgmt:"按对应行业的国家标准出厂检验即可，不需要 WS 628 评价"}
 ];
+const WS628_PRODUCTS=[
+{n:"葡萄糖酸氯己定醇皮肤消毒液",alias:"别名：氯己定醇、洗必泰醇、葡萄糖酸氯己定乙醇消毒液",cls:"2",form:"液体 · 醇基复方 · 皮肤消毒剂",scope:"术前皮肤准备、注射/穿刺部位皮肤消毒；若说明书宣称外科手消毒/卫生手消毒，按手消毒剂增做对应现场试验",
+groups:[
+ {g:"一、理化指标",items:[
+  "有效成分①：葡萄糖酸氯己定含量（以氯己定计）——只测乙醇不测氯己定，资料必退回",
+  "有效成分②：乙醇体积分数（20℃ 测定）——醇基产品必测，最常被漏项",
+  "pH 值",
+  "稳定性：原包装（37℃ 3 个月加速或常温留样）+ 开瓶后使用期限",
+  "外观、装量（出厂检验项，备案资料一并附）"
+ ]},
+ {g:"二、微生物杀灭试验（实验室）",items:[
+  "金黄色葡萄球菌 ATCC 6538",
+  "大肠杆菌 ATCC 25922",
+  "白色念珠菌 ATCC 10231",
+  "铜绿假单胞菌 ATCC 15442（皮肤消毒剂常规加做）",
+  "宣称灭活病毒的，加病毒灭活试验（如脊髓灰质炎病毒、冠状病毒）"
+ ]},
+ {g:"三、模拟现场 / 现场试验",items:[
+  "皮肤消毒现场试验（自然菌杀灭对数值 ≥1.00）",
+  "宣称外科手消毒：外科手消毒现场试验",
+  "宣称卫生手消毒：卫生手消毒现场试验",
+  "作用时间按说明书宣称（30s / 1min / 3min）逐点验证，不能只做最长时间点"
+ ]},
+ {g:"四、毒理学安全性",items:[
+  "急性经口毒性（LD50＞5000 mg/kg 判实际无毒）",
+  "一次完整皮肤刺激试验",
+  "多次完整皮肤刺激试验",
+  "皮肤变态反应（致敏）试验",
+  "用于破损皮肤：破损皮肤刺激试验",
+  "可能接触眼周：急性眼刺激试验"
+ ]},
+ {g:"五、标签说明书（非检测，备案必查）",items:[
+  "GB 38598 标签说明书通用要求",
+  "宣称的杀灭微生物类别须与检测报告逐字对应",
+  "标注开封后使用期限、有效期、执行标准号"
+ ]}
+],
+tips:"最容易被退回的 3 处：①只测氯己定、没测乙醇；②没做开瓶后稳定性；③说明书宣称「外科手消毒」，却只做了皮肤消毒现场试验。"},
+{n:"75% 乙醇消毒液（皮肤 / 手 / 物体表面）",alias:"别名：酒精消毒液、乙醇消毒剂",cls:"2",form:"液体 · 单方醇类",scope:"皮肤、手、物体表面擦拭消毒；不同宣称对应不同现场试验",
+groups:[
+ {g:"一、理化指标",items:["乙醇含量（体积分数，20℃）","pH 值","稳定性（原包装 + 开瓶后）"]},
+ {g:"二、微生物杀灭（实验室）",items:["金黄色葡萄球菌","大肠杆菌","白色念珠菌","铜绿假单胞菌（物体表面用）"]},
+ {g:"三、现场试验",items:["按宣称做皮肤 / 卫生手 / 物体表面现场试验","作用时间与说明书一致"]},
+ {g:"四、毒理",items:["急性经口毒性","一次皮肤刺激","多次皮肤刺激（反复接触）","急性眼刺激"]}
+],
+tips:"乙醇浓度不是越高越好：低于 70% 或高于 80% 杀菌效果都下降，标示范围要与实测含量对得上。"},
+{n:"卫生湿巾（抗抑菌制剂类）",alias:"别名：消毒湿巾、抑菌湿巾",cls:"2",form:"载体类 · 含液",scope:"皮肤/手/物体表面清洁抑菌；宣称「消毒」的按消毒剂管理，检测项目另按剂型增补",
+groups:[
+ {g:"一、理化与含液量",items:["含液量（g/片 或 %）","pH 值","稳定性（原包装 + 开封后）","有效成分含量（含抗菌成分时）"]},
+ {g:"二、抗菌 / 抑菌性能",items:["大肠杆菌 抑菌率/抗菌率","金黄色葡萄球菌 抑菌率/抗菌率","白色念珠菌 抑菌率/抗菌率"]},
+ {g:"三、微生物指标（GB 15979）",items:["细菌菌落总数、真菌菌落总数","大肠菌群、致病性化脓菌（不得检出）"]},
+ {g:"四、毒理",items:["急性经口毒性","一次皮肤刺激","多次皮肤刺激（反复使用）"]}
+],
+tips:"卫生湿巾 ≠ 消毒湿巾：宣称「消毒」就要按消毒剂做杀灭试验，只做抑菌率会被认定超范围宣称。"}
+];
 const WS628_TESTS=[
 {cat:"消毒剂 · 第一类（灭菌剂 / 高水平消毒剂）",who:"第一类",items:[
  "有效成分含量（含开瓶后/稀释使用中的稳定性）",
@@ -704,6 +763,7 @@ function renderWs628(){
   const hit=s=>!terms.length||terms.every(t=>s.includes(t));
   const scope=WS628_SCOPE.filter(s=>hit(s.prod+s.ex+s.clsName+s.mgmt));
   const tests=WS628_TESTS.filter(t=>hit(t.cat+t.items.join("")));
+  const prods=WS628_PRODUCTS.filter(p=>hit(p.n+p.alias+p.scope+p.groups.map(g=>g.g+g.items.join("")).join("")));
   const clsBadge=c=>`<span class="wcls wcls-${c}">${c==="1"?"第一类 高风险":c==="2"?"第二类 中风险":"不需评价"}</span>`;
   const QUICK=["氯己定醇","酒精","碘伏","含氯/次氯酸","环氧乙烷","紫外线","戊二醛","过氧化氢","湿巾","稳定性","毒理"];
   const noHit=`<div class="empty">没找到？试试这些叫法：<b>氯己定醇</b>（=葡萄糖酸氯己定+乙醇）、<b>含氯/次氯酸</b>、<b>酒精</b>；或拆成两个词用空格分开搜（如「氯己定 醇」）。也可以在「检验机构」页直接搜检测项目。</div>`;
@@ -722,11 +782,20 @@ function renderWs628(){
     <div class="wuse"><b>典型产品：</b>${s.ex}</div>
     <div class="wuse" style="color:var(--navy)"><b>管理方式：</b>${s.mgmt}</div>
   </div>`).join("") || noHit}
-  <h2 class="sec">需要检测什么（${tests.length} 类 · 按产品类型）</h2>
+  <h2 class="sec">常见产品 · 逐项检测清单（${prods.length} 款）</h2>
+  ${prods.map(p=>`<div class="lab">
+    <h3>${p.n} ${clsBadge(p.cls)}<span class="badge badge-3rd">${p.form}</span></h3>
+    <div class="wuse">${p.alias}</div>
+    <div class="wuse" style="color:var(--navy)"><b>适用/宣称：</b>${p.scope}</div>
+    ${p.groups.map(g=>`<div class="wuse" style="margin-top:11px"><b style="color:var(--ink);font-size:12.5px">${g.g}</b></div>
+      <ul class="plist">${g.items.map(i=>`<li>${i}</li>`).join("")}</ul>`).join("")}
+    ${p.tips?`<p style="font-size:12.5px;color:var(--red);margin-top:9px;background:var(--red-bg);padding:8px 11px;border-radius:8px">⚠️ ${p.tips}</p>`:""}
+  </div>`).join("") || noHit}
+  ${tests.length?`<h2 class="sec">需要检测什么（${tests.length} 类 · 按产品类型）</h2>
   ${tests.map(t=>`<div class="kit">
     <h3>${t.cat} ${t.who==="两类都有"?`<span class="wcls wcls-1">第一类</span><span class="wcls wcls-2">第二类</span>`:clsBadge(t.who==="第一类"?"1":"2")}</h3>
     <ul>${t.items.map(i=>`<li>${i}</li>`).join("")}</ul>
-  </div>`).join("") || noHit}
+  </div>`).join("")}`:""}
   <div class="kit">
     <h3>送检前必看的 5 条提醒</h3>
     <ul>
